@@ -14,7 +14,8 @@ const allocationssRoutes= require('./routes/allocations')
 
 
 
-mongoose.connect("mongodb+srv://userone:userone@libraryfiles.o5pxy.mongodb.net/TRAINERMANGEMENT?retryWrites=true&w=majority",{useUnifiedTopology:true,useNewUrlParser:true});
+// mongoose.connect("mongodb+srv://userone:userone@libraryfiles.o5pxy.mongodb.net/TRAINERMANGEMENT?retryWrites=true&w=majority",{useUnifiedTopology:true,useNewUrlParser:true});
+mongoose.connect('mongodb://localhost:27017/TRAINERMANGEMENT')
 
 const NewApplData =require('./src/models/NewAppl')
 const CourseData = require('./src/models/CourseData')
@@ -361,52 +362,51 @@ app.post('/course',verifyToken1,(req,res)=>{
 app.post('/trainer',verifyToken1,(req,res)=>{
     LoginData.findOne().sort({id:-1})
     .then((data)=>{
-       if(data.id){
-         let idnew = data.id;
-           var num=   idnew.slice(-2)
-           let  id1=parseInt(num);
-           id2= id1 + 1
-           if(id2<10){
-           id2= `0`+`${id2}`
+        if (data!==null){
+            let idnew = data.id;
+            var num=   idnew.slice(-2)
+            let  id1=parseInt(num);
+            id2= id1 + 1
+            if(id2<10){
+            id2= `0`+`${id2}`
+            }
+             idq=`TR`+`${id2}`
+     //   console.log(idq+ "first")
+       const id=req.body.trainer._id
+       
+       trainer=
+           {
+               name: req.body.trainer.name,
+               email: req.body.trainer.email,
+               phone: req.body.trainer.phone,
+               address: req.body.trainer.address,
+               highestQualification: req.body.trainer.highestQualification,
+               skillSet: req.body.trainer.skillSet,
+               companyName: req.body.trainer.companyName,
+               designation: req.body.trainer.designation,
+               course: req.body.trainer.course,
+               id: idq,
+               password: req.body.trainer.password,
+               image: req.body.trainer.image,
+               imagepath: req.body.trainer.imagepath,
+               type:req.body.trainer.type
+   
            }
-            idq=`TR`+`${id2}`
-    //   console.log(idq+ "first")
-      const id=req.body.trainer._id
+         //   console.log(trainer.id+"third")
+           sendMail(trainer).then((result)=>{
+               console.log("Email sent",result)
+           })
+           .catch((error)=>{
+               console.log(error.message)
+           })
+       var trainer = LoginData(trainer);
+       trainer.save();
+       NewApplData.findByIdAndDelete({"_id":id})
+       .then(()=>{
       
-      trainer=
-          {
-              name: req.body.trainer.name,
-              email: req.body.trainer.email,
-              phone: req.body.trainer.phone,
-              address: req.body.trainer.address,
-              highestQualification: req.body.trainer.highestQualification,
-              skillSet: req.body.trainer.skillSet,
-              companyName: req.body.trainer.companyName,
-              designation: req.body.trainer.designation,
-              course: req.body.trainer.course,
-              id: idq,
-              password: req.body.trainer.password,
-              image: req.body.trainer.image,
-              imagepath: req.body.trainer.imagepath,
-              type:req.body.trainer.type
-  
-          }
-        //   console.log(trainer.id+"third")
-          sendMail(trainer).then((result)=>{
-              console.log("Email sent",result)
-          })
-          .catch((error)=>{
-              console.log(error.message)
-          })
-      var trainer = LoginData(trainer);
-      trainer.save();
-      NewApplData.findByIdAndDelete({"_id":id})
-      .then(()=>{
-     
-      res.send();
-  })
-         }
-         else{
+       res.send();
+   })}
+        else{
             idq="TR01"
             const id=req.body.trainer._id
            
@@ -442,7 +442,8 @@ app.post('/trainer',verifyToken1,(req,res)=>{
            
             res.send();
         })
-         }
+        }
+       
     })
     .catch((error)=>{
       
